@@ -17,19 +17,13 @@
       </div>
 
       <div class="form-control">
-        <label class="label"><span class="text-gray-700">Slug</span></label>
-        {{ form.slug|add_class:"input input-bordered w-full" }}
-        <p class="text-xs opacity-60 mt-1">Optional: url slug (auto-generated if left blank)</p>
+        <label class="label"><span class="text-gray-700">Content</span></label>
+        {{ form.content|add_class:"textarea textarea-bordered w-full" }}
       </div>
 
       <div class="form-control">
         <label class="label"><span class="text-gray-700">Image</span></label>
         {{ form.image|add_class:"file-input file-input-bordered w-full" }}
-      </div>
-
-      <div class="form-control">
-        <label class="label"><span class="text-gray-700">Content</span></label>
-        {{ form.content|add_class:"textarea textarea-bordered w-full" }}
       </div>
 
       <div class="form-control">
@@ -41,21 +35,6 @@
         <label class="label"><span class="text-gray-700">Status</span></label>
         {{ form.status|add_class:"select select-bordered w-full" }}
       </div>
-
-      <div class="form-control">
-        <label class="cursor-pointer label">
-          <span class="text-gray-700">Is Published</span>
-          {{ form.is_published|add_class:"checkbox checkbox-primary" }}
-        </label>
-      </div>
-
-
-      {% comment %} <div class="form-control">
-        <label class="cursor-pointer label">
-          <span class="label-text">Publish Now?</span>
-          {{ form.is_published }}
-        </label>
-      </div> {% endcomment %}
 
       <div class="flex justify-between mt-6">
         <button class="btn btn-primary" type="submit">Save Article</button>

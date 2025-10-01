@@ -39,7 +39,7 @@
         <tr>
           <td>{{ article.title }}</td>
           <td>
-            {% if article.is_published %}
+            {% if article.status == "published" %}
               <span class="badge badge-success">Published</span>
             {% else %}
               <span class="badge badge-warning">Pending</span>

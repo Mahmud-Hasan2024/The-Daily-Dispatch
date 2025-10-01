@@ -27,17 +27,11 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    is_published = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        if not self.slug:
+        if not self.pk and not self.slug:
             self.slug = slugify(self.title)[:50]
         super().save(*args, **kwargs)
-
-    def publish(self):
-        self.status = "published"
-        self.is_published = True
-        self.save()
 
     def __str__(self):
         return self.title

@@ -12,15 +12,15 @@ from django.urls import reverse
 
 # Article Views
 def article_list(request):
-    featured = Article.objects.filter(is_published=True).order_by("-created_at").first()
-    articles_list = Article.objects.filter(is_published=True).order_by("-created_at")[1:]
+    featured = Article.objects.filter(status="published").order_by("-created_at").first()
+    articles_list = Article.objects.filter(status="published").order_by("-created_at")[1:]
 
     paginator = Paginator(articles_list, 6)
     page_number = request.GET.get("page")
     articles = paginator.get_page(page_number)
 
     categories = Category.objects.all()
-    trending = Article.objects.filter(is_published=True).order_by("-created_at")[:5]
+    trending = Article.objects.filter(status="published").order_by("-created_at")[:5]
 
     return render(request, "articles/article_list.html", {
         "featured": featured,
@@ -31,9 +31,9 @@ def article_list(request):
 
 
 def article_detail(request, slug):
-    article = get_object_or_404(Article, slug=slug, is_published=True)
+    article = get_object_or_404(Article, slug=slug, status="published")
     comment_form = CommentForm()
-    related = Article.objects.filter(category=article.category, is_published=True).exclude(id=article.id)[:5]
+    related = Article.objects.filter(category=article.category, status="published").exclude(id=article.id)[:5]
 
     if request.method == "POST" and request.user.is_authenticated:
         comment_form = CommentForm(request.POST)
@@ -103,13 +103,12 @@ def update_article(request, slug):
             if is_reporter(request.user):
                 # reporter’s edits always need re-approval
                 updated_article.status = "pending"
-                updated_article.is_published = False
             else:
                 # admin/editor can freely change status
                 pass  
 
             updated_article.save()
-            return redirect("news:article_detail", slug=updated_article.slug)
+            return redirect("news:article_list")
     else:
         form = form_class(instance=article)
 
@@ -168,7 +167,7 @@ def category_list(request):
 
 def category_detail(request, pk):
     category = get_object_or_404(Category, pk=pk)
-    articles = Article.objects.filter(category=category, is_published=True).order_by("-created_at")
+    articles = Article.objects.filter(category=category, status="published").order_by("-created_at")
     return render(request, "categories/category_detail.html", {"category": category, "articles": articles})
 
 

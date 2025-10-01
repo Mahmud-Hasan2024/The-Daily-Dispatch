@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 content=fake.paragraph(nb_sentences=15),
                 author=user,
                 category=random.choice(categories),
-                is_published=True
+                status=random.choice(["pending", "published"])
             )
 
             # Fetch a random image from picsum.photos

@@ -4,12 +4,12 @@ from news.models import Article, Category
 class AdminArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ["title", "slug", "content", "image", "category", "status", "is_published"]
+        fields = ["title", "content", "image", "category", "status"]
 
 class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ["title", "slug", "content", "image", "category"]
+        fields = ["title", "content", "image", "category"]
 
 class CategoryForm(forms.ModelForm):
     class Meta:
