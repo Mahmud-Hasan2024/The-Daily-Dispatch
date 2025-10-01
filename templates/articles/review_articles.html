@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10">
+  <h1 class="text-3xl font-bold text-center mb-6">Pending Articles</h1>
+
+  {% if pending_articles %}
+    <div class="grid gap-6">
+      {% for article in pending_articles %}
+      <div class="card shadow-lg p-6 border rounded-lg">
+        <h2 class="text-2xl font-semibold">{{ article.title }}</h2>
+        <p class="text-gray-600 text-sm mb-3">
+          By {{ article.author.username }} | {{ article.created_at|date:"M d, Y H:i" }}
+        </p>
+        <p class="mb-4">{{ article.content|truncatewords:30 }}</p>
+
+        <div class="flex gap-3">
+          <a href="{% url 'approve_article' article.pk %}" 
+             class="btn btn-success btn-sm">Approve</a>
+
+          <form action="{% url 'reject_article' article.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-error btn-sm">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-gray-500">No pending articles at the moment.</p>
+  {% endif %}
+</div>
+{% endblock %}

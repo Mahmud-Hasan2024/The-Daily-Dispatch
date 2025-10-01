@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}{% if category %}Edit Category{% else %}Create Category{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+  <div class="card bg-base-100 shadow p-8">
+    <h1 class="text-3xl font-bold mb-6 text-center">
+      {% if category %}Edit Category{% else %}Create Category{% endif %}
+    </h1>
+
+    <form method="POST" class="space-y-5">
+      {% csrf_token %}
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Name</span></label>
+        {{ form.name|add_class:"input input-bordered w-full" }}
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Description</span></label>
+        {{ form.description|add_class:"input input-bordered w-full" }}
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <button type="submit" class="btn btn-primary">
+          {% if category %}Update{% else %}Create{% endif %}
+        </button>
+        <a href="{% url 'news:article_list' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

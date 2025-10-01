@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 space-y-10">
+
+  <h1 class="text-4xl font-bold mb-6">Reporter Dashboard</h1>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="stat bg-base-100 shadow p-6">
+      <div class="stat-title">My Articles</div>
+      <div class="stat-value">{{ my_articles_count }}</div>
+    </div>
+    <div class="stat bg-base-100 shadow p-6">
+      <div class="stat-title">Published</div>
+      <div class="stat-value text-success">{{ my_published_count }}</div>
+    </div>
+    <div class="stat bg-base-100 shadow p-6">
+      <div class="stat-title">Pending</div>
+      <div class="stat-value text-warning">{{ my_pending_count }}</div>
+    </div>
+  </div>
+
+  <!-- My Articles -->
+  <div class="card shadow bg-base-100 p-6">
+    <h2 class="text-2xl font-semibold mb-4">My Articles</h2>
+    {% if my_articles %}
+    <table class="table w-full">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for article in my_articles %}
+        <tr>
+          <td>{{ article.title }}</td>
+          <td>
+            {% if article.is_published %}
+              <span class="badge badge-success">Published</span>
+            {% else %}
+              <span class="badge badge-warning">Pending</span>
+            {% endif %}
+          </td>
+          <td>{{ article.updated_at|date:"M d, Y" }}</td>
+          <td>
+            <a href="{% url 'edit-article' article.pk %}" class="btn btn-sm">Edit</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>You haven’t written any articles yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

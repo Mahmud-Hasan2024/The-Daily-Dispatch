@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Categories</h1>
+    <ul class="space-y-4">
+        {% for category in categories %}
+            <li class="border p-4 rounded-lg shadow hover:bg-gray-50">
+                <a href="{% url 'news:category_detail' category.pk %}" class="text-xl font-semibold text-blue-600 hover:underline">
+                    {{ category.name }}
+                </a>
+                <p class="text-gray-600">{{ category.description|default:"No description." }}</p>
+            </li>
+        {% empty %}
+            <p>No categories available.</p>
+        {% endfor %}
+    </ul>
+    {% if user.is_authenticated %}
+        <a href="{% url 'news:create_category' %}" class="btn btn-primary mt-6">+ Add Category</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Signup{% endblock %}
+{% block content %}
+<div class="bg-base-200 py-20 px-4">
+  <div class="max-w-md mx-auto card shadow-2xl bg-base-100">
+    <div class="card-body">
+      <h1 class="text-3xl font-bold text-center mb-6">Create an Account</h1>
+
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        {# Display non-field errors #}
+        {% if form.non_field_errors %}
+          <div class="alert alert-error text-sm">
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% for field in form %}
+          <div class="form-control">
+            <label class="label block mb-1">
+              <span class="label-text font-medium">{{ field.label }}</span>
+            </label>
+            {{ field|add_class:"input input-bordered w-full" }}
+            {% if field.errors %}
+              <p class="text-error text-sm mt-1">{{ field.errors|striptags }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary w-full">Signup</button>
+      </form>
+
+      <p class="mt-6 text-center text-sm">
+        Already have an account?
+        <a href="{% url 'users:login' %}" class="link link-primary">Login here</a>.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

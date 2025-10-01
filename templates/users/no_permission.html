@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Access Denied{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center h-[80vh]">
+  <div class="text-center">
+    <h1 class="text-4xl font-bold mb-4 text-error">403 - Forbidden</h1>
+    <p class="text-lg mb-6">You do not have permission to access this page.</p>
+    <a href="{% url 'news:article_list' %}" class="btn btn-primary">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

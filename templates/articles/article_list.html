@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Latest - Daily Dispatch{% endblock %}
+{% block content %}
+<div class="grid gap-8 grid-cols-1 lg:grid-cols-3">
+  <!-- Main column -->
+  <div class="lg:col-span-2 space-y-6">
+    <!-- Hero / Featured -->
+    {% if featured %}
+      <div class="card bg-base-100 shadow-xl overflow-hidden">
+        <div class="lg:flex">
+          <figure class="lg:w-1/2">
+            {% if featured.image %}
+              <img src="{{ featured.image.url }}" alt="{{ featured.title }}" class="w-full h-72 object-cover img-loading">
+            {% else %}
+              <div class="w-full h-72 bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white">
+                <span class="text-xl font-bold p-4">{{ featured.title }}</span>
+              </div>
+            {% endif %}
+          </figure>
+          <div class="card-body lg:w-1/2">
+            {% if featured.category %}
+              <a href="{% url 'news:category_detail' featured.category.pk %}" class="badge badge-outline mb-2">
+                {{ featured.category.name }}
+              </a>
+            {% endif %}
+            <h2 class="card-title text-3xl">{{ featured.title }}</h2>
+            <p class="text-sm opacity-70">By {{ featured.author.username }} • {{ featured.created_at|date:"M d, Y" }}</p>
+            <p class="mt-4 text-lg leading-relaxed">{{ featured.content|truncatewords:50 }}</p>
+            <div class="card-actions justify-end">
+              <a href="{% url 'news:article_detail' featured.slug %}" class="btn btn-primary">Read Full Story</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Article grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for article in articles %}
+        <article class="card card-compact bg-base-100 shadow hover:shadow-lg transition">
+          <figure>
+            {% if article.image %}
+              <img src="{{ article.image.url }}" alt="{{ article.title }}" class="h-44 w-full object-cover">
+            {% else %}
+              <div class="h-44 w-full bg-base-300 flex items-center justify-center text-base-content">
+                <span class="px-4 text-sm">{{ article.title }}</span>
+              </div>
+            {% endif %}
+          </figure>
+          <div class="card-body p-4">
+            {% if article.category %}
+              <a href="{% url 'news:category_detail' article.category.pk %}" class="badge badge-outline mb-1">
+                {{ article.category.name }}
+              </a>
+            {% endif %}
+            <h3 class="font-semibold text-lg">
+              <a href="{% url 'news:article_detail' article.slug %}" class="link link-hover">{{ article.title }}</a>
+            </h3>
+            <p class="text-xs opacity-60">By {{ article.author.username }} • {{ article.created_at|date:"M d, Y" }}</p>
+            <p class="text-sm mt-2 text-neutral">{{ article.content|truncatewords:20 }}</p>
+            <div class="mt-3 flex items-center justify-between">
+              <a href="{% url 'news:article_detail' article.slug %}" class="btn btn-ghost btn-sm">Read →</a>
+              <div class="text-xs opacity-60">{{ article.comments.count }} comments</div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center mt-8">
+      <div class="join">
+        {% if articles.has_previous %}
+          <a href="?page={{ articles.previous_page_number }}" class="join-item btn btn-sm">«</a>
+        {% else %}
+          <button class="join-item btn btn-sm btn-disabled">«</button>
+        {% endif %}
+
+        <button class="join-item btn btn-sm btn-primary">
+          Page {{ articles.number }} of {{ articles.paginator.num_pages }}
+        </button>
+
+        {% if articles.has_next %}
+          <a href="?page={{ articles.next_page_number }}" class="join-item btn btn-sm">»</a>
+        {% else %}
+          <button class="join-item btn btn-sm btn-disabled">»</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="space-y-6">
+    <!-- Categories -->
+    <div class="card bg-base-100 shadow p-4">
+      <h4 class="font-semibold mb-3">Categories</h4>
+      <div class="flex flex-wrap gap-2">
+        {% for cat in categories %}
+          <a href="{% url 'news:category_detail' cat.pk %}" class="badge badge-outline">{{ cat.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Trending -->
+    <div class="card bg-base-100 shadow p-4">
+      <h4 class="font-semibold mb-3">Trending</h4>  
+      <ul class="menu menu-compact">
+        {% for t in trending %}
+          <li><a href="{% url 'news:article_detail' t.slug %}">{{ t.title|truncatechars:60 }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

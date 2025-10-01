@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Delete Article{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow text-center">
+  <h1 class="text-2xl font-bold mb-4">Delete Article</h1>
+  <p>Are you sure you want to delete <strong>{{ article.title }}</strong>?</p>
+  <form method="post" class="mt-6 flex justify-center space-x-4">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700">Yes, Delete</button>
+    <a href="{% url 'news:article_detail' article.slug %}" class="bg-gray-300 px-5 py-2 rounded hover:bg-gray-400">Cancel</a>
+  </form>
+</div>
+{% endblock %}

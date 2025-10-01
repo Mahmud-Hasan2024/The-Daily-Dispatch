@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}{% if form.instance.pk %}Edit Article{% else %}Create Article{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="card bg-base-100 shadow p-8">
+    <h1 class="text-3xl font-bold mb-6 text-center">
+      {% if form.instance.pk %}Edit Article{% else %}Create Article{% endif %}
+    </h1>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Title</span></label>
+        {{ form.title|add_class:"input input-bordered w-full" }}
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Slug</span></label>
+        {{ form.slug|add_class:"input input-bordered w-full" }}
+        <p class="text-xs opacity-60 mt-1">Optional: url slug (auto-generated if left blank)</p>
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Image</span></label>
+        {{ form.image|add_class:"file-input file-input-bordered w-full" }}
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Content</span></label>
+        {{ form.content|add_class:"textarea textarea-bordered w-full" }}
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Category</span></label>
+        {{ form.category|add_class:"select select-bordered w-full" }}
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="text-gray-700">Status</span></label>
+        {{ form.status|add_class:"select select-bordered w-full" }}
+      </div>
+
+      <div class="form-control">
+        <label class="cursor-pointer label">
+          <span class="text-gray-700">Is Published</span>
+          {{ form.is_published|add_class:"checkbox checkbox-primary" }}
+        </label>
+      </div>
+
+
+      {% comment %} <div class="form-control">
+        <label class="cursor-pointer label">
+          <span class="label-text">Publish Now?</span>
+          {{ form.is_published }}
+        </label>
+      </div> {% endcomment %}
+
+      <div class="flex justify-between mt-6">
+        <button class="btn btn-primary" type="submit">Save Article</button>
+        <a href="{% url 'news:article_list' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
