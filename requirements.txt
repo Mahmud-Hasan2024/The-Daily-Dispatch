@@ -2,9 +2,11 @@ asgiref==3.9.2
 certifi==2025.8.3
 charset-normalizer==3.4.3
 Django==5.2.6
+django-phonenumber-field==8.3.0
 django-widget-tweaks==1.5.0
 Faker==37.8.0
 idna==3.10
+phonenumbers==9.0.15
 pillow==11.3.0
 psycopg2==2.9.10
 psycopg2-binary==2.9.10
