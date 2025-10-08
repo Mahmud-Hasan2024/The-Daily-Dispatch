@@ -39,8 +39,8 @@
           <td>{{ article.title }}</td>
           <td>{{ article.author.username }}</td>
           <td>
-            <a href="{% url 'approve-article' article.pk %}" class="btn btn-success btn-sm">Publish</a>
-            <form action="{% url 'delete-article' article.pk %}" method="post" class="inline">
+            <a href="{% url 'news:approve_article' article.pk %}" class="btn btn-success btn-sm">Publish</a>
+            <form action="{% url 'news:reject_article' article.pk %}" method="post" class="inline">
               {% csrf_token %}
               <button type="submit" class="btn btn-error btn-sm">Delete</button>
             </form>

@@ -38,7 +38,7 @@ def comment_update(request, pk):
 
             return redirect("news:article_detail", slug=comment.article.slug)
         
-    return render(request, "comments/comment_form.html", {"form": form})
+    return render(request, "comments/comment_form.html", {"form": form, "comment": comment})
 
 
 @login_required

@@ -20,11 +20,21 @@
       </p>
 
       <!-- Edit/Delete buttons for author -->
-      {% if user == article.author %}
-        <div class="mb-6 flex items-center space-x-2">
-          <a href="{% url 'news:update_article' article.slug %}" class="btn btn-warning btn-sm">Edit</a>
-          <a href="{% url 'news:delete_article' article.slug %}" class="btn btn-error btn-sm">Delete</a>
-        </div>
+      {% if user.is_authenticated %}
+        {% for group in user.groups.all %}
+          {% if group.name == "Admin" %}
+            <a href="{% url 'news:update_article' article.slug %}" class="btn btn-warning btn-sm">Edit</a>
+            <a href="{% url 'news:delete_article' article.slug %}" class="btn btn-error btn-sm">Delete</a>
+          {% elif group.name == "Editor" %}
+            <a href="{% url 'news:update_article' article.slug %}" class="btn btn-warning btn-sm">Edit</a>
+            <a href="{% url 'news:delete_article' article.slug %}" class="btn btn-error btn-sm">Delete</a>
+          {% elif group.name == "Reporter" %}
+            {% if user == article.author %}
+              <a href="{% url 'news:update_article' article.slug %}" class="btn btn-warning btn-sm">Edit</a>
+              <a href="{% url 'news:delete_article' article.slug %}" class="btn btn-error btn-sm">Delete</a>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
       {% endif %}
 
       <div class="prose max-w-none">

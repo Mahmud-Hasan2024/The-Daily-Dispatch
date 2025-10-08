@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block nav %}
+    {% if user.is_authenticated %}
+        {% include 'logged_nav.html' %}
+    {% else %}
+        {% include 'non_logged_nav.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class ="max-w-lg mx-auto mt-10 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-bold">Edit Profile</h2>
+
+<form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow-md max-w-xl space-y-4">
+    {% csrf_token %}
+
+    <h3 class="font-bold">User Info</h3>
+    {% for field in user_form %}
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">{{ field.label }}</label>
+        {% if field.name == "phone_number" %}
+          {{ field }}
+        {% else %}
+          {{ field|add_class:"input input-bordered w-full" }}
+        {% endif %}
+        {% for error in field.errors %}
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <h3 class="font-bold mt-4">Profile Info</h3>
+    {% for field in profile_form %}
+      <div>
+        <label class="block font-semibold mb-1 text-gray-700">{{ field.label }}</label>
+        {{ field|add_class:"input input-bordered w-full" }}
+        {% for error in field.errors %}
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white mt-4 font-semibold px-4 py-2 rounded">
+      Update
+    </button>
+</form>
+</div>
+{% endblock %}

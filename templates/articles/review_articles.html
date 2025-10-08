@@ -1,34 +1,60 @@
 {% extends "base.html" %}
-{% load static %}
+{% block title %}Article Review Dashboard{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto mt-10">
-  <h1 class="text-3xl font-bold text-center mb-6">Pending Articles</h1>
+<div class="max-w-7xl mx-auto py-10 space-y-8">
 
-  {% if pending_articles %}
-    <div class="grid gap-6">
-      {% for article in pending_articles %}
-      <div class="card shadow-lg p-6 border rounded-lg">
-        <h2 class="text-2xl font-semibold">{{ article.title }}</h2>
-        <p class="text-gray-600 text-sm mb-3">
-          By {{ article.author.username }} | {{ article.created_at|date:"M d, Y H:i" }}
-        </p>
-        <p class="mb-4">{{ article.content|truncatewords:30 }}</p>
-
-        <div class="flex gap-3">
-          <a href="{% url 'approve_article' article.pk %}" 
-             class="btn btn-success btn-sm">Approve</a>
-
-          <form action="{% url 'reject_article' article.pk %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-error btn-sm">Delete</button>
-          </form>
-        </div>
-      </div>
-      {% endfor %}
+  <!-- Pending Articles Review -->
+  <div class="card shadow bg-base-100 p-6">
+    <h2 class="text-2xl font-semibold mb-4">Pending Articles</h2>
+    {% if pending_articles %}
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for article in pending_articles %}
+          <tr>
+            <td>{{ article.title }}</td>
+            <td>{{ article.author.username }}</td>
+            <td class="space-x-2">
+              <a href="{% url 'news:approve_article' article.pk %}" class="btn btn-success btn-sm">Publish</a>
+              <form action="{% url 'news:reject_article' article.pk %}" method="post" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-error btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  {% else %}
-    <p class="text-center text-gray-500">No pending articles at the moment.</p>
-  {% endif %}
+    {% else %}
+    <p class="text-gray-500">No pending articles.</p>
+    {% endif %}
+  </div>
+
+  <!-- Published Articles -->
+  <div class="card shadow bg-base-100 p-6">
+    <h2 class="text-2xl font-semibold mb-4">Published Articles</h2>
+    {% if published_articles %}
+    <ul class="list-disc pl-6 space-y-1">
+      {% for article in published_articles %}
+      <li>
+        <span class="font-medium">{{ article.title }}</span>
+        <span class="text-sm text-gray-500">by {{ article.author.username }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-gray-500">No published articles yet.</p>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}

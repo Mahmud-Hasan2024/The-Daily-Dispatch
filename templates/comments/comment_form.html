@@ -1,12 +1,31 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 {% block title %}Edit Comment{% endblock %}
+
 {% block content %}
-<div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow">
-  <h1 class="text-2xl font-bold mb-4">Edit Comment</h1>
-  <form method="post" class="space-y-6">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Update</button>
-  </form>
+<div class="max-w-lg mx-auto mt-12">
+  <div class="bg-white shadow-lg rounded-2xl p-8">
+    <h1 class="text-3xl font-extrabold text-center mb-6 text-gray-800">Edit Comment</h1>
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <div>
+        {{ form.content.label_tag }}
+        {{ form.content|add_class:"w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" }}
+        {% if form.content.errors %}
+          <p class="text-red-500 text-sm mt-1">{{ form.content.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-md">
+        Update Comment
+      </button>
+    </form>
+
+    <a href="{% url 'news:article_detail' comment.article.slug %}" class="mt-4 block text-center text-blue-600 hover:underline">
+      ← Back to Article
+    </a>
+  </div>
 </div>
 {% endblock %}

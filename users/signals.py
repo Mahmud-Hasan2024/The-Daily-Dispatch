@@ -5,6 +5,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
+from users.models import Profile
 
 
 # Send activation email to new users
@@ -23,10 +24,22 @@ def send_activation_email(sender, instance, created, **kwargs):
             return HttpResponse(f"Failed to send email to {instance.email}: {str(e)}")
         
 
+# Create or update user profile
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    else:
+        Profile.objects.get_or_create(user=instance)
+
+
 # Assign default role to new users
 @receiver(post_save, sender=User)
 def assign_role(sender, instance, created, **kwargs):
     if created:
-        user_group, created = Group.objects.get_or_create(name='Subscriber')
-        instance.groups.add(user_group)
-        instance.save()
+        if instance.is_superuser:
+            admin_group, _ = Group.objects.get_or_create(name='Admin')
+            instance.groups.add(admin_group)
+        else:
+            subscriber_group, _ = Group.objects.get_or_create(name='Subscriber')
+            instance.groups.add(subscriber_group)

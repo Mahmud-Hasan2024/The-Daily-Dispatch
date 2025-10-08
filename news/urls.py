@@ -12,8 +12,8 @@ urlpatterns = [
     path("", article_list, name="article_list"),
 
     # Article URLs
-    path("article/<slug:slug>/", article_detail, name="article_detail"),
     path("article/create/", create_article, name="create_article"),
+    path("article/<slug:slug>/", article_detail, name="article_detail"),
     path("article/<slug:slug>/update/", update_article, name="update_article"),
     path("article/<slug:slug>/delete/", delete_article, name="delete_article"),
 
@@ -25,8 +25,7 @@ urlpatterns = [
     path("categories/<int:pk>/delete/", delete_category, name="delete_category"),
 
     # Review and Approve Articles
-    path("articles/review/", review_articles, name="review-articles"),
-    # path("articles/<int:pk>/approve/", approve_article, name="approve-article")
+    path("articles/review/", review_articles, name="review_articles"),
     path("approve-article/<int:pk>/", approve_article, name="approve_article"),
     path("reject-article/<int:pk>/", reject_article, name="reject_article"),
 ]

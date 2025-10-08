@@ -1,21 +1,37 @@
 from django import forms
+from phonenumber_field.formfields import PhoneNumberField as PhoneNumberFormField
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import ValidationError
+from users.models import Profile
+
 
 User = get_user_model()
 
+
 class RegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name',
-                  'password1', 'password2', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
 
-    def __init__(self, *args, **kwargs):
-        super(UserCreationForm, self).__init__(*args, **kwargs)
+    def clean_username(self):
+        username = self.cleaned_data.get('username').lower()
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("Username already exists")
+        return username
 
-        for fieldname in ['username', 'password1', 'password2']:
-            self.fields[fieldname].help_text = None
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            email = email.lower()
+            if User.objects.filter(email=email).exists():
+                raise ValidationError("Email already exists")
+        return email
+
 
             
 
@@ -26,10 +42,58 @@ class AssignRoleForm(forms.Form):
         widget=forms.Select(attrs={"class": "form-select"})
     )
 
-class CreateGroupForm(forms.ModelForm):
+
+
+class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
-        fields = ["name"]
+        fields = ["name", "permissions"]
         widgets = {
-            "name": forms.TextInput(attrs={"class": "input input-bordered w-full"})
+            "permissions": forms.CheckboxSelectMultiple,
         }
+
+
+class EditProfileForm(forms.ModelForm):
+    phone_number = PhoneNumberFormField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Phone Number'
+        }),
+        required=False
+    )
+    
+    profile_image = forms.ImageField(required=False)
+
+    class Meta:
+        model = Profile
+        fields = ['phone_number', 'profile_image']
+
+class EditUserForm(forms.ModelForm):
+    email = forms.EmailField(disabled=True)
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'First Name'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Last Name'}))
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+
+
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label='Old Password',
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Enter your old password'})
+    )
+    new_password1 = forms.CharField(
+        label='New Password',
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Enter your new password'
+        })
+    )
+    new_password2 = forms.CharField(
+        label='Confirm New Password',
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Enter your new password again'
+        })
+    )

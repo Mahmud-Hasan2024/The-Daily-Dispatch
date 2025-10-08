@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto mt-10 space-y-10">
@@ -6,46 +7,23 @@
   <!-- Header -->
   <h1 class="text-4xl font-bold mb-6">Admin Dashboard</h1>
 
-  <!-- Stats Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="stat bg-base-100 shadow rounded-lg p-6">
-      <div class="stat-title">Total Articles</div>
-      <div class="stat-value">{{ total_articles }}</div>
-    </div>
-    <div class="stat bg-base-100 shadow rounded-lg p-6">
-      <div class="stat-title">Pending Articles</div>
-      <div class="stat-value text-warning">{{ pending_articles_count }}</div>
-    </div>
-    <div class="stat bg-base-100 shadow rounded-lg p-6">
-      <div class="stat-title">Published Articles</div>
-      <div class="stat-value text-success">{{ published_articles_count }}</div>
-    </div>
-    <div class="stat bg-base-100 shadow rounded-lg p-6">
-      <div class="stat-title">Categories</div>
-      <div class="stat-value">{{ categories_count }}</div>
-    </div>
-    <div class="stat bg-base-100 shadow rounded-lg p-6">
-      <div class="stat-title">Users</div>
-      <div class="stat-value">{{ users_count }}</div>
-    </div>
+  <!-- Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+    <div class="stat bg-base-100 shadow p-6"><div class="stat-title">Total Articles</div><div class="stat-value">{{ total_articles }}</div></div>
+    <div class="stat bg-base-100 shadow p-6"><div class="stat-title">Pending</div><div class="stat-value text-warning">{{ pending_articles_count }}</div></div>
+    <div class="stat bg-base-100 shadow p-6"><div class="stat-title">Published</div><div class="stat-value text-success">{{ published_articles_count }}</div></div>
+    <div class="stat bg-base-100 shadow p-6"><div class="stat-title">Categories</div><div class="stat-value">{{ categories_count }}</div></div>
+    <div class="stat bg-base-100 shadow p-6"><div class="stat-title">Users</div><div class="stat-value">{{ users_count }}</div></div>
   </div>
 
   <!-- Articles per Category -->
   <div class="card shadow bg-base-100 p-6">
     <h2 class="text-2xl font-semibold mb-4">Articles by Category</h2>
     <table class="table w-full">
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th>Articles</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Category</th><th>Articles</th></tr></thead>
       <tbody>
         {% for category, count in category_articles.items %}
-        <tr>
-          <td>{{ category }}</td>
-          <td>{{ count }}</td>
-        </tr>
+          <tr><td>{{ category }}</td><td>{{ count }}</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -55,16 +33,8 @@
   <div class="card shadow bg-base-100 p-6">
     <h2 class="text-2xl font-semibold mb-4">Pending Articles</h2>
     {% if pending_articles %}
-    <div class="overflow-x-auto">
       <table class="table w-full">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Submitted</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Title</th><th>Author</th><th>Submitted</th><th>Actions</th></tr></thead>
         <tbody>
           {% for article in pending_articles %}
           <tr>
@@ -74,17 +44,15 @@
             <td>
               <a href="{% url 'news:approve_article' article.pk %}" class="btn btn-success btn-sm">Publish</a>
               <form action="{% url 'news:reject_article' article.pk %}" method="post" class="inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-error btn-sm">Delete</button>
+                {% csrf_token %}<button type="submit" class="btn btn-error btn-sm">Delete</button>
               </form>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-    </div>
     {% else %}
-    <p class="text-gray-500">No pending articles.</p>
+      <p class="text-gray-500">No pending articles.</p>
     {% endif %}
   </div>
 
@@ -92,17 +60,70 @@
   <div class="card shadow bg-base-100 p-6">
     <h2 class="text-2xl font-semibold mb-4">Published Articles</h2>
     {% if published_articles %}
-    <ul class="list-disc pl-6 space-y-2">
-      {% for article in published_articles %}
-      <li>
-        <a href="{% url 'news:article_detail' article.slug %}" class="link link-primary">{{ article.title }}</a>
-        <span class="text-gray-500 text-sm">by {{ article.author.username }}</span>
-      </li>
-      {% endfor %}
-    </ul>
+      <ul class="list-disc pl-6 space-y-2">
+        {% for article in published_articles %}
+        <li><a href="{% url 'news:article_detail' article.slug %}" class="link link-primary">{{ article.title }}</a>
+          <span class="text-gray-500 text-sm">by {{ article.author.username }}</span></li>
+        {% endfor %}
+      </ul>
     {% else %}
-    <p class="text-gray-500">No published articles.</p>
+      <p class="text-gray-500">No published articles.</p>
     {% endif %}
+  </div>
+
+  <!-- Group Management -->
+
+  <div class="card shadow bg-base-100 p-6">
+    <h2 class="text-2xl font-semibold mb-4">Groups & Permissions</h2>
+    <table class="table w-full">
+      <thead><tr><th>Name</th><th>Permissions</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for group in groups %}
+        <tr>
+          <td>{{ group.name }}</td>
+          <td>
+            {% for perm in group.permissions.all %}
+              <span class="badge badge-outline">{{ perm.name }}</span>
+            {% empty %}
+              <span class="opacity-60">No permissions</span>
+            {% endfor %}
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <a href="{% url 'users:group_edit' group.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'users:group_delete' group.pk %}" class="btn btn-sm btn-error">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{% url 'users:group_create' %}" class="btn btn-primary mt-4">+ Create Group</a>
+  </div>
+
+  <!-- User Management -->
+  <div class="card shadow bg-base-100 p-6">
+    <h2 class="text-2xl font-semibold mb-4">Users & Roles</h2>
+    <table class="table w-full">
+      <thead><tr><th>Username</th><th>Email</th><th>Status</th><th>Roles</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>{% if u.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-error">Inactive</span>{% endif %}</td>
+          <td>
+            {% for g in u.groups.all %}
+              <span class="badge badge-outline">{{ g.name }}</span>
+            {% empty %}
+              <span class="opacity-60">No roles</span>
+            {% endfor %}
+          </td>
+          <td><a href="{% url 'users:edit_user_roles' u.pk %}" class="btn btn-xs btn-info">Edit Roles</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
 </div>

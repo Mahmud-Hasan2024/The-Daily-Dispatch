@@ -39,12 +39,14 @@
           </div>
         {% endfor %}
 
-        <button type="submit" class="btn btn-primary w-full">Login</button>
+        <button type="submit" class="btn btn-primary w-full">Sign in</button>
       </form>
+
+      <a href="{% url 'users:password_reset' %}" class="text-blue-500 mt-4">Forgot your password?</a>
 
       <p class="mt-6 text-center text-sm">
         Don’t have an account?
-        <a href="{% url 'users:signup' %}" class="link link-primary">Signup here</a>.
+        <a href="{% url 'users:signup' %}" class="link link-primary">Sign up</a>
       </p>
     </div>
   </div>

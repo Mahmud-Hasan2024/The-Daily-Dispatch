@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-10">
+  <h1 class="text-2xl font-bold mb-6">All Users</h1>
+  <div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Active</th>
+          <th>Roles</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge badge-success">Active</span>
+            {% else %}
+              <span class="badge badge-error">Inactive</span>
+            {% endif %}
+          </td>
+          <td>
+            {% for g in u.groups.all %}
+              <span class="badge badge-outline">{{ g.name }}</span>
+            {% empty %}
+              <span class="text-sm opacity-60">No roles</span>
+            {% endfor %}
+          </td>
+          <td>
+            <a href="{% url 'users:edit_user_roles' u.pk %}" class="btn btn-sm btn-warning">Edit Roles</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

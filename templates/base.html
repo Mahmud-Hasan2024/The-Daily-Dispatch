@@ -5,28 +5,104 @@
   <meta charset="UTF-8">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>{% block title %}Daily Dispatch{% endblock %}</title>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
+
   <!-- Navbar -->
   <nav class="bg-blue-700 text-white shadow-md sticky top-0 z-50">
-    <div class="container mx-auto flex justify-between items-center p-4">
-      <a href="{% url 'news:article_list' %}" class="font-extrabold text-2xl tracking-tight">
-        Daily Dispatch
-      </a>
-      <div class="space-x-6">
+    <div class="container mx-auto flex items-center justify-between p-4">
+
+      <!-- Left: Logo / Brand -->
+      <div class="flex-shrink-0">
+        <a href="{% url 'news:article_list' %}" class="font-extrabold text-2xl tracking-tight">
+          Daily Dispatch
+        </a>
+      </div>
+
+      <!-- Center: Links -->
+      {% if user.is_authenticated %}
+      <div class="flex-1 flex justify-center">
+        <!-- Desktop Menu -->
+        <ul class="menu menu-horizontal px-1 hidden lg:flex space-x-3">
+          <li><a href="{% url 'news:article_list' %}">All Articles</a></li>
+          <li><a href="{% url 'news:category_list' %}">Categories</a></li>
+
+          {% for group in user.groups.all %}
+            {% if group.name == "Admin" or user.is_superuser %}
+              <li><a href="{% url 'news:create_article' %}">New Article</a></li>
+              <li><a href="{% url 'news:create_category' %}">New Category</a></li>
+              <li><a href="{% url 'users:group_list' %}">Manage Roles</a></li>
+              <li><a href="{% url 'users:user_list' %}">Manage Users</a></li>
+              <li><a href="{% url 'news:review_articles' %}">Article Review</a></li>
+            {% elif group.name == "Editor" %}
+              <li><a href="{% url 'news:create_article' %}">New Article</a></li>
+              <li><a href="{% url 'news:create_category' %}">New Category</a></li>
+              <li><a href="{% url 'news:review_articles' %}">Article Review</a></li>
+            {% elif group.name == "Reporter" %}
+              <li><a href="{% url 'news:create_article' %}">New Article</a></li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+
+        <!-- Mobile Menu -->
+        <div class="dropdown lg:hidden">
+          <label tabindex="0" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </label>
+          <ul tabindex="0"
+              class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-black">
+            <li><a href="{% url 'news:article_list' %}">All Articles</a></li>
+            <li><a href="{% url 'news:category_list' %}">Categories</a></li>
+
+            {% for group in user.groups.all %}
+              {% if group.name == "Admin" or user.is_superuser %}
+                <li><a href="{% url 'news:create_article' %}">New Article</a></li>
+                <li><a href="{% url 'news:create_category' %}">New Category</a></li>
+                <li><a href="{% url 'users:group_list' %}">Manage Roles</a></li>
+                <li><a href="{% url 'users:user_list' %}">Manage Users</a></li>
+                <li><a href="{% url 'news:review_articles' %}">Article Review</a></li>
+              {% elif group.name == "Editor" %}
+                <li><a href="{% url 'news:create_article' %}">New Article</a></li>
+                <li><a href="{% url 'news:create_category' %}">New Category</a></li>
+                <li><a href="{% url 'news:review_articles' %}">Article Review</a></li>
+              {% elif group.name == "Reporter" %}
+                <li><a href="{% url 'news:create_article' %}">New Article</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Right: Dashboard + Profile -->
+      <div class="flex items-center space-x-3">
         {% if user.is_authenticated %}
-          <span class="font-medium">Hello, {{ user.username }}</span>
-          {% if user.is_staff %}
-            <a href="{% url 'users:admin_dashboard' %}" class="hover:text-gray-200">Dashboard</a>
-          {% endif %}
-          <a href="{% url 'news:article_list' %}" class="hover:text-gray-200">All Articles</a>
-          <a href="{% url 'news:category_list' %}" class="hover:text-gray-200">Categories</a>
-          <a href="{% url 'news:create_article' %}" class="hover:text-gray-200">New Article</a>
-          <a href="{% url 'news:create_category' %}" class="hover:text-gray-200">New Category</a>
-          <a href="{% url 'users:logout' %}" class="hover:text-gray-200">Logout</a>
+          <!-- Dashboard -->
+          {% for group in user.groups.all %}
+            {% if group.name == "Admin" %}
+              <a href="{% url 'users:admin_dashboard' %}" class="btn btn-sm btn-outline btn-info">Dashboard</a>
+            {% elif group.name == "Editor" %}
+              <a href="{% url 'users:editor_dashboard' %}" class="btn btn-sm btn-outline btn-info">Dashboard</a>
+            {% elif group.name == "Reporter" %}
+              <a href="{% url 'users:reporter_dashboard' %}" class="btn btn-sm btn-outline btn-info">Dashboard</a>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Profile Dropdown -->
+          <div class="dropdown dropdown-end">
+            <label tabindex="0" class="btn btn-sm btn-ghost rounded-btn">{{ user.username }}</label>
+            <ul tabindex="0"
+                class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 text-black">
+              <li><a href="{% url 'users:profile' %}">View Profile</a></li>
+              <li><a href="{% url 'users:logout' %}">Logout</a></li>
+            </ul>
+          </div>
         {% else %}
-          <a href="{% url 'news:article_list' %}" class="hover:text-gray-200">All Articles</a>
-          <a href="{% url 'news:category_list' %}" class="hover:text-gray-200">Categories</a>
           <a href="{% url 'users:login' %}" class="hover:text-gray-200">Login</a>
           <a href="{% url 'users:signup' %}" class="hover:text-gray-200">Signup</a>
         {% endif %}
@@ -34,7 +110,10 @@
     </div>
   </nav>
 
-  <!-- Page Content -->
+
+
+
+  <!-- Main Content -->
   <main class="container mx-auto px-4 py-8">
     {% block content %}{% endblock %}
   </main>
@@ -93,5 +172,6 @@
       <p>Copyright © {{ now|date:"Y" }} - All right reserved The Daily Dispatch News Limited</p>
     </aside>
   </footer>
+
 </body>
 </html>

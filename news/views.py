@@ -4,14 +4,48 @@ from news.models import Article, Category
 from news.forms import AdminArticleForm, ArticleForm, CategoryForm
 from comments.forms import CommentForm
 from django.core.paginator import Paginator
-from users.utils import is_admin_editor_reporter, is_admin, is_editor, is_reporter, is_moderator
+from django.db.models import Q
+from users.utils import is_admin_editor_reporter,is_admin_or_editor, is_admin, is_editor, is_reporter, is_moderator
 from django.contrib import messages
 from django.urls import reverse
 
 # Create your views here.
 
 # Article Views
+
 def article_list(request):
+    query = request.GET.get("q", "")
+
+    # Base queryset for published articles
+    articles_queryset = Article.objects.filter(status="published").order_by("-created_at")
+
+    # Filter by search query if present
+    if query:
+        articles_queryset = articles_queryset.filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        )
+
+    # Featured article: first article in full queryset (ignore search filtering for featured if you want)
+    featured = articles_queryset.first()
+
+    # Articles list excluding featured
+    articles_list = articles_queryset[1:]
+
+    # Pagination
+    paginator = Paginator(articles_list, 6)
+    page_number = request.GET.get("page")
+    articles = paginator.get_page(page_number)
+
+    categories = Category.objects.all()
+    trending = Article.objects.filter(status="published").order_by("-created_at")[:5]
+
+    return render(request, "articles/article_list.html", {
+        "featured": featured,
+        "articles": articles,
+        "categories": categories,
+        "trending": trending,
+        "query": query,
+    })
     featured = Article.objects.filter(status="published").order_by("-created_at").first()
     articles_list = Article.objects.filter(status="published").order_by("-created_at")[1:]
 
@@ -73,7 +107,7 @@ def create_article(request):
             if is_reporter(request.user):
                 article.status = "pending"
             article.save()
-            return redirect("news:article_detail", slug=article.slug)
+            return redirect("news:article_list")
     else:
         form = form_class()
 
@@ -117,7 +151,7 @@ def update_article(request, slug):
 
 
 @login_required
-@user_passes_test(is_admin or is_editor or is_reporter, login_url='users:no_permission')
+@user_passes_test(is_admin_editor_reporter, login_url='users:no_permission')
 def delete_article(request, slug):
     article = get_object_or_404(Article, slug=slug)
 
@@ -130,31 +164,43 @@ def delete_article(request, slug):
 
     return render(request, "articles/article_confirm_delete.html", {"article": article})
 
+
 @login_required
-@user_passes_test(is_admin or is_editor, login_url='users:no_permission')
+@user_passes_test(is_admin_or_editor, login_url='users:no_permission')
 def review_articles(request):
-    pending_articles = Article.objects.filter(status="pending")
-    return render(request, "articles/review_articles.html", {"pending_articles": pending_articles})
+    # Only allow Admins and Editors
+    pending_articles = Article.objects.filter(status="pending").select_related('author', 'category').order_by('-created_at')
+    published_articles = Article.objects.filter(status="published").select_related('author', 'category').order_by('-created_at')
+
+    return render(request, "articles/review_articles.html", {
+        "pending_articles": pending_articles,
+        "published_articles": published_articles,
+    })
 
 
 
 @login_required
-@user_passes_test(is_admin or is_editor, login_url='users:no_permission')
+@user_passes_test(is_admin_or_editor, login_url='users:no_permission')
 def approve_article(request, pk):
     article = get_object_or_404(Article, pk=pk, status="pending")
     article.status = "published"
     article.save()
     messages.success(request, f"Article '{article.title}' has been approved and published.")
-    return redirect(reverse("users:admin_dashboard"))
-
+    if is_admin(request.user):
+        return redirect(reverse("users:admin_dashboard"))
+    elif is_editor(request.user):
+        return redirect(reverse("users:editor_dashboard"))
 
 @login_required
-@user_passes_test(is_admin or is_editor, login_url='users:no_permission')
+@user_passes_test(is_admin_or_editor, login_url='users:no_permission')
 def reject_article(request, pk):
     article = get_object_or_404(Article, pk=pk, status="pending")
     article.delete()
     messages.warning(request, f"Article '{article.title}' has been rejected and deleted.")
-    return redirect(reverse("users:admin_dashboard"))
+    if is_admin(request.user):
+        return redirect(reverse("users:admin_dashboard"))
+    elif is_editor(request.user):
+        return redirect(reverse("users:editor_dashboard"))
 
 
 
@@ -172,7 +218,7 @@ def category_detail(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin or is_editor, login_url='users:no_permission')
+@user_passes_test(is_admin_or_editor, login_url='users:no_permission')
 def create_category(request):
     form = CategoryForm()
 
@@ -187,7 +233,7 @@ def create_category(request):
 
 
 @login_required
-@user_passes_test(is_admin or is_editor, login_url='users:no_permission')
+@user_passes_test(is_admin_or_editor, login_url='users:no_permission')
 def update_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
     form = CategoryForm(instance=category)
@@ -203,7 +249,7 @@ def update_category(request, pk):
 
 
 @login_required
-@user_passes_test(is_admin or is_editor, login_url='users:no_permission')
+@user_passes_test(is_admin_or_editor, login_url='users:no_permission')
 def delete_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
 
