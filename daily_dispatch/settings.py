@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import cloudinary
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -93,6 +94,18 @@ DATABASES = {
         "PORT": config('port'),
     }
 }
+
+
+# Configuration for Cloudinary   
+cloudinary.config( 
+    cloud_name = config('cloud_name'), 
+    api_key = config('api_key') , 
+    api_secret = config('api_secret'),
+    secure=True
+)
+
+# Media storage using Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # Password validation
