@@ -104,6 +104,8 @@ cloudinary.config(
     secure=True
 )
 
+CLOUDINARY_URL = config('CLOUDINARY_URL')
+
 # Media storage using Cloudinary
 DEFAULT_FILE_STORAGE = config('DEFAULT_FILE_STORAGE')
 
