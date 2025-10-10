@@ -1,23 +1,52 @@
-# users/views.py
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import logout
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse_lazy
+from users.forms import EditUserForm, GroupForm, RegisterForm, User, AssignRoleForm, EditProfileForm, CustomPasswordChangeForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import Group, Permission
+from users.utils import is_admin, is_editor, is_reporter
+from news.models import Article, Category
+from users.models import Profile
+from django.contrib.auth.models import Group, User, Permission
+from users.decorators import logout_required
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.views.generic import DetailView
-from django.db.models import Count
-from users.forms import EditUserForm, GroupForm, EditProfileForm, CustomPasswordChangeForm
-from users.models import Profile
-from users.utils import get_user_role, is_admin, is_editor, is_reporter
-
-from news.models import Article, Category
+from users.utils import get_user_role
 
 
-# ---------------- Authentication Views ----------------
+# Create your views here.
+
+# Authentication Views
+
+@logout_required
+def signup_view(request):
+    form = RegisterForm()
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = form.cleaned_data.get('email')
+            user.is_active = False
+            user.save()
+            messages.success(request, 'A confirmation mail sent. Please check your email')
+            return redirect('users:login')
+    return render(request, 'users/signup.html', {"form": form})
+
+
+@logout_required
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect("news:article_list")
+    else:
+        form = AuthenticationForm()
+    return render(request, "users/login.html", {"form": form})
 
 @login_required
 def logout_view(request):
@@ -25,42 +54,49 @@ def logout_view(request):
     return redirect("news:article_list")
 
 
+# Account Activation View
 def activate_user(request, user_id, token):
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
     try:
         user = User.objects.get(id=user_id)
         if default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
             return redirect('users:login')
-        return HttpResponse('Invalid Id or token')
+        else:
+            return HttpResponse('Invalid Id or token')
+
     except User.DoesNotExist:
         return HttpResponse('User not found')
+    
 
 
-# ---------------- Dashboards ----------------
+# ---------------- Admin Dashboard ----------------
 
 @login_required
 @user_passes_test(is_admin, login_url='users:no_permission')
 def admin_dashboard(request):
+    # Article stats
     total_articles = Article.objects.count()
-    pending_articles_count = Article.objects.filter(status="pending").count()
-    published_articles_count = Article.objects.filter(status="published").count()
+    pending_articles = Article.objects.filter(status="pending")
+    published_articles = Article.objects.filter(status="published")
     categories_count = Category.objects.count()
-    users_count = Profile.objects.count()
+    users_count = User.objects.count()
 
-    category_articles = Category.objects.annotate(article_count=Count("articles"))
+    # Articles per category
+    category_articles = {c.name: c.articles.count() for c in Category.objects.all()}
 
+    # Role/Group management
     groups = Group.objects.prefetch_related("permissions").all()
-    users = Profile.objects.select_related("user").all()
+    users = User.objects.all()
 
     context = {
         "total_articles": total_articles,
-        "pending_articles_count": pending_articles_count,
-        "published_articles_count": published_articles_count,
+        "pending_articles_count": pending_articles.count(),
+        "published_articles_count": published_articles.count(),
         "categories_count": categories_count,
         "users_count": users_count,
+        "pending_articles": pending_articles,
+        "published_articles": published_articles,
         "category_articles": category_articles,
         "groups": groups,
         "users": users,
@@ -69,52 +105,75 @@ def admin_dashboard(request):
     return render(request, "users/admin_dashboard.html", context)
 
 
+
+# ---------------- Editor Dashboard ----------------
 @login_required
 @user_passes_test(is_editor, login_url='users:no_permission')
 def editor_dashboard(request):
     total_articles = Article.objects.count()
-    pending_articles_count = Article.objects.filter(status="pending").count()
-    published_articles_count = Article.objects.filter(status="published").count()
+    pending_articles = Article.objects.filter(status="pending")
+    published_articles = Article.objects.filter(status="published")
 
     context = {
         "total_articles": total_articles,
-        "pending_articles_count": pending_articles_count,
-        "published_articles_count": published_articles_count,
+        "pending_articles_count": pending_articles.count(),
+        "published_articles_count": published_articles.count(),
+        "pending_articles": pending_articles,
+        "published_articles": published_articles,
     }
     return render(request, "users/editor_dashboard.html", context)
 
 
+# ---------------- Reporter Dashboard ----------------
 @login_required
 @user_passes_test(is_reporter, login_url='users:no_permission')
 def reporter_dashboard(request):
     my_articles = Article.objects.filter(author=request.user)
-    my_pending_count = my_articles.filter(status="pending").count()
-    my_published_count = my_articles.filter(status="published").count()
+    my_pending = my_articles.filter(status="pending")
+    my_published = my_articles.filter(status="published")
 
     context = {
         "my_articles": my_articles,
         "my_articles_count": my_articles.count(),
-        "my_pending_count": my_pending_count,
-        "my_published_count": my_published_count,
+        "my_pending_count": my_pending.count(),
+        "my_published_count": my_published.count(),
     }
     return render(request, "users/reporter_dashboard.html", context)
 
 
-# ---------------- User & Group Management ----------------
+@login_required
+@user_passes_test(is_admin, login_url='users:no_permission')
+def assign_role(request, user_id):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    user = get_object_or_404(User, pk=user_id)
+    form = AssignRoleForm()
+
+    if request.method == 'POST':
+        form = AssignRoleForm(request.POST)
+        if form.is_valid():
+            role = form.cleaned_data.get('role')
+            user.groups.clear()
+            user.groups.add(role)
+            messages.success(request, f"{user.username} assigned to {role.name} successfully.")
+            return redirect('users:user_list')
+
+    return render(request, 'users/assign_role.html', {"form": form, "user": user})
+
+
+# user management views
 
 @login_required
 @user_passes_test(is_admin, login_url='users:no_permission')
 def user_list(request):
-    users = Profile.objects.select_related("user").prefetch_related("user__groups").all()
+    users = User.objects.all()
     return render(request, "users/user_list.html", {"users": users})
 
 
 @login_required
 @user_passes_test(is_admin, login_url='users:no_permission')
 def edit_user_roles(request, pk):
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    user = get_object_or_404(User.objects.prefetch_related("groups"), id=pk)
+    user = get_object_or_404(User, id=pk)
     groups = Group.objects.all()
 
     if request.method == "POST":
@@ -134,10 +193,13 @@ def edit_user_roles(request, pk):
     return render(request, "users/user_roles_form.html", {"user": user, "groups": groups})
 
 
+
+# group management views
+
 @login_required
 @user_passes_test(is_admin, login_url='users:no_permission')
 def group_list(request):
-    groups = Group.objects.prefetch_related("permissions").all()
+    groups = Group.objects.all()
     return render(request, "users/group_list.html", {"groups": groups})
 
 
@@ -155,16 +217,20 @@ def group_create(request):
 
 
 @login_required
-@user_passes_test(is_admin, login_url='users:no_permission')
+@user_passes_test(is_admin  , login_url='users:no_permission')
 def group_edit(request, pk):
-    group = get_object_or_404(Group.objects.prefetch_related("permissions"), pk=pk)
+    group = get_object_or_404(Group, pk=pk)
+
+
     if request.method == "POST":
         form = GroupForm(request.POST, instance=group)
+
         if form.is_valid():
             form.save()
             return redirect("users:admin_dashboard")
     else:
         form = GroupForm(instance=group)
+        
     return render(request, "users/group_form.html", {"form": form, "title": "Edit Group"})
 
 
@@ -172,23 +238,24 @@ def group_edit(request, pk):
 @user_passes_test(is_admin, login_url='users:no_permission')
 def group_delete(request, pk):
     group = get_object_or_404(Group, pk=pk)
+
     if request.method == "POST":
         group.delete()
         messages.warning(request, f"Group '{group.name}' has been deleted.")
         return redirect("users:group_list")
+
     return render(request, "users/group_confirm_delete.html", {"group": group})
 
 
-# ---------------- Profile Management ----------------
+# Profile Management Views
 
 class ProfileView(DetailView):
-    model = Profile
+    model = User
     template_name = 'users/profile.html'
     context_object_name = 'profile_user'
 
     def get_object(self):
-        profile, created = Profile.objects.select_related("user").get_or_create(user=self.request.user)
-        return profile
+        return self.request.user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -198,7 +265,7 @@ class ProfileView(DetailView):
 
 @login_required
 def edit_profile(request):
-    profile, created = Profile.objects.select_related("user").get_or_create(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         user_form = EditUserForm(request.POST, instance=request.user)
@@ -217,8 +284,10 @@ def edit_profile(request):
         'profile_form': profile_form
     })
 
+    
 
-# ---------------- Password Change ----------------
+
+# Change Password
 
 class ChangePassword(PasswordChangeView):
     template_name = 'users/change_password.html'
@@ -233,7 +302,7 @@ class ChangePassword(PasswordChangeView):
         context = super().get_context_data(**kwargs)
         context['user_role'] = get_user_role(self.request)
         return context
-
+    
 
 class CustomPasswordChangeDoneView(PasswordChangeDoneView):
     template_name = 'users/change_password_done.html'
@@ -243,8 +312,6 @@ class CustomPasswordChangeDoneView(PasswordChangeDoneView):
         context['user_role'] = get_user_role(self.request)
         return context
 
-
-# ---------------- No Permission ----------------
-
+# no permission view
 def no_permission(request):
     return render(request, "users/no_permission.html")
