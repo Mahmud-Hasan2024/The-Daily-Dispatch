@@ -22,7 +22,7 @@ class Article(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     content = models.TextField()
-    image = CloudinaryField('image', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True, default='default_images/ubxxfzpnrezvtqerdigw')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True,  related_name="articles")
     created_at = models.DateTimeField(auto_now_add=True)
