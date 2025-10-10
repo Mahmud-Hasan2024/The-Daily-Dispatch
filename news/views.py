@@ -8,6 +8,7 @@ from django.db.models import Q
 from users.utils import is_admin_editor_reporter,is_admin_or_editor, is_admin, is_editor, is_reporter, is_moderator
 from django.contrib import messages
 from django.urls import reverse
+from django.db.models import Prefetch
 
 # Create your views here.
 
@@ -15,29 +16,22 @@ from django.urls import reverse
 
 def article_list(request):
     query = request.GET.get("q", "")
-
-    # Base queryset for published articles
-    articles_queryset = Article.objects.filter(status="published").order_by("-created_at")
-
-    # Filter by search query if present
+    articles_queryset = Article.objects.filter(status="published").select_related("author", "category").order_by("-created_at")
     if query:
-        articles_queryset = articles_queryset.filter(
-            Q(title__icontains=query) | Q(content__icontains=query)
-        )
+        articles_queryset = articles_queryset.filter(Q(title__icontains=query) | Q(content__icontains=query))
 
-    # Featured article: first article in full queryset (ignore search filtering for featured if you want)
-    featured = articles_queryset.first()
+    articles_list = list(articles_queryset)
+    featured = articles_list[0] if articles_list else None
+    articles_list = articles_list[1:]
 
-    # Articles list excluding featured
-    articles_list = articles_queryset[1:]
-
-    # Pagination
     paginator = Paginator(articles_list, 6)
     page_number = request.GET.get("page")
     articles = paginator.get_page(page_number)
 
-    categories = Category.objects.all()
-    trending = Article.objects.filter(status="published").order_by("-created_at")[:5]
+    categories = Category.objects.prefetch_related(
+        Prefetch("articles", queryset=Article.objects.filter(status="published"))
+    )
+    trending = articles_queryset[:5]
 
     return render(request, "articles/article_list.html", {
         "featured": featured,
@@ -46,28 +40,20 @@ def article_list(request):
         "trending": trending,
         "query": query,
     })
-    featured = Article.objects.filter(status="published").order_by("-created_at").first()
-    articles_list = Article.objects.filter(status="published").order_by("-created_at")[1:]
-
-    paginator = Paginator(articles_list, 6)
-    page_number = request.GET.get("page")
-    articles = paginator.get_page(page_number)
-
-    categories = Category.objects.all()
-    trending = Article.objects.filter(status="published").order_by("-created_at")[:5]
-
-    return render(request, "articles/article_list.html", {
-        "featured": featured,
-        "articles": articles,
-        "categories": categories,
-        "trending": trending,
-    })
 
 
 def article_detail(request, slug):
-    article = get_object_or_404(Article, slug=slug, status="published")
+    article = get_object_or_404(
+        Article.objects.select_related("author", "category").prefetch_related(
+            Prefetch("comments", queryset=CommentForm.Meta.model.objects.select_related("user").order_by("-created_at"))
+        ),
+        slug=slug, status="published"
+    )
+
     comment_form = CommentForm()
-    related = Article.objects.filter(category=article.category, status="published").exclude(id=article.id)[:5]
+    related = Article.objects.filter(
+        category=article.category, status="published"
+    ).exclude(id=article.id).select_related("author")[:5]
 
     if request.method == "POST" and request.user.is_authenticated:
         comment_form = CommentForm(request.POST)
