@@ -2,6 +2,7 @@ asgiref==3.9.2
 certifi==2025.8.3
 charset-normalizer==3.4.3
 cloudinary==1.44.1
+dj-database-url==3.0.1
 Django==5.2.6
 django-cloudinary-storage==0.3.0
 django-phonenumber-field==8.3.0
