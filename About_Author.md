@@ -21,6 +21,7 @@ Aspiring **Backend Developer** and **DevOps Enthusiast** with a passion for buil
 #### 🍽️ [ByteFeast Restaurant](https://byte-feast-react-difzitpml-mahmud-hasans-projects-8504381b.vercel.app)
 
 - **[Frontend (Live Demo)](https://byte-feast-react-difzitpml-mahmud-hasans-projects-8504381b.vercel.app)** | **[Base API](https://byte-feast-resturant-django-rest-ap.vercel.app/api/v1/)** | **[Swagger Docs](https://byte-feast-resturant-django-rest-ap.vercel.app/swagger/)**
+- **GitHub:** frontend: [Mahmud-Hasan2024/ByteFeast_frontend](https://github.com/Mahmud-Hasan2024/ByteFeast_frontend) | backend: [Mahmud-Hasan2024/ByteFeast-backend](https://github.com/Mahmud-Hasan2024/ByteFeast-backend)
 - **Tech Stack:** React, Django REST Framework, PostgreSQL
 - **Description:** A restaurant management system integrating both frontend and backend with RESTful APIs.
 
@@ -29,6 +30,7 @@ Aspiring **Backend Developer** and **DevOps Enthusiast** with a passion for buil
 #### 💼 [Talent Bridge Job Portal](https://talent-bridge.vercel.app/)
 
 - **[Frontend (Live Demo)](https://talent-bridge.vercel.app/)** | **[Base API](https://talent-bridge-api.vercel.app/api/v1/)** | **[Swagger Docs](https://talent-bridge-api.vercel.app/swagger/)**
+- **GitHub:** frontend: [Mahmud-Hasan2024/Talent-Bridge-Frontend](https://github.com/Mahmud-Hasan2024/Talent-Bridge-Frontend) | backend: [Mahmud-Hasan2024/talent-bridge-backend](https://github.com/Mahmud-Hasan2024/talent-bridge-backend)
 - **Tech Stack:** Django REST Framework, React, PostgreSQL
 - **Description:** A job portal platform connecting job seekers and employers with secure API-based communication.
 
@@ -51,7 +53,6 @@ Aspiring **Backend Developer** and **DevOps Enthusiast** with a passion for buil
 - **Description:** A full-featured online news portal with admin control, article management, and authentication.
 
 ---
-
 
 ### 🎓 Education
 
