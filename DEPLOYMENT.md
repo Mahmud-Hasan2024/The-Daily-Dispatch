@@ -4,9 +4,9 @@
 
 ## 🌍 Live Links
 
-Live website : https://the-daily-dispatch-fkkp.onrender.com
+**Production:** [https://the-daily-dispatch-fkkp.onrender.com](https://the-daily-dispatch-fkkp.onrender.com)
 
-Github link : https://github.com/Mahmud-Hasan2024/The-Daily-Dispatch
+**GitHub:** [https://github.com/Mahmud-Hasan2024/The-Daily-Dispatch](https://github.com/Mahmud-Hasan2024/The-Daily-Dispatch)
 
 ---
 
