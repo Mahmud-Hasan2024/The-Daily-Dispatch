@@ -23,8 +23,6 @@ Built with a focus on editorial workflows — Admins, Editors, Reporters, Modera
 | Moderator  | `cmcpherson`   | `kgb12345` |
 | Subscriber | `mercerangela` | `kgb12345` |
 
-> These are provided in `DEPLOYMENT.md`. If you change them on the live site, update that file.
-
 ---
 
 ## 🌟 Key Features
