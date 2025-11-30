@@ -40,7 +40,7 @@ Aspiring **Backend Developer** and **DevOps Enthusiast** with a passion for buil
 
 - **Live Site:** [event-management-9y10.onrender.com](https://event-management-9y10.onrender.com) |
 - **GitHub:** [Mahmud-Hasan2024/nub-event-management](https://github.com/Mahmud-Hasan2024/nub-event-management)
-- **Tech Stack:** Django, Bootstrap, PostgreSQL
+- **Tech Stack:** Django, TailwindCSS, PostgreSQL
 - **Description:** A university event management platform with role-based access control (RBAC) and RSVP features.
 
 ---
@@ -49,8 +49,15 @@ Aspiring **Backend Developer** and **DevOps Enthusiast** with a passion for buil
 
 - **Live Site:** [the-daily-dispatch-fkkp.onrender.com](https://the-daily-dispatch-fkkp.onrender.com)
 - **GitHub:** [Mahmud-Hasan2024/The-Daily-Dispatch](https://github.com/Mahmud-Hasan2024/The-Daily-Dispatch)
-- **Tech Stack:** Django, Django REST Framework, PostgreSQL
+- **Tech Stack:** Django, TailwindCSS, PostgreSQL
 - **Description:** A full-featured online news portal with admin control, article management, and authentication.
+
+#### 🧠 [AI Complaint System](https://ai-complaint-system-p1ox.onrender.com/login/?next=/)
+
+- **Live:** [https://ai-complaint-system-p1ox.onrender.com](https://ai-complaint-system-p1ox.onrender.com)
+- **GitHub:** [https://github.com/Mahmud-Hasan2024/ai-complaint-system](https://github.com/Mahmud-Hasan2024/ai-complaint-system)
+- **Tech:** Django, Tailwind, PostgreSQL
+- **Description:** A complete complaint management system with roles, notifications, dashboards, and admin panel.
 
 ---
 
