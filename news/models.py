@@ -1,7 +1,11 @@
 from django.db import models
-from users.forms import User
+# from users.forms import User
 from django.utils.text import slugify
-# from cloudinary.models import CloudinaryField
+from cloudinary.models import CloudinaryField
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 # Create your models here.
 
@@ -22,7 +26,7 @@ class Article(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     content = models.TextField()
-    image = models.ImageField(upload_to='article_images/', blank=True, null=True, default='article_images/breaking.webp')
+    image = CloudinaryField('image', blank=True, null=True, default='default_article_image')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True,  related_name="articles")
     created_at = models.DateTimeField(auto_now_add=True)

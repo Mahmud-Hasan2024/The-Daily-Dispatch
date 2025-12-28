@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import dj_database_url
-# import cloudinary
+import cloudinary
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -85,38 +85,38 @@ WSGI_APPLICATION = 'daily_dispatch.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('default'),
-        conn_max_age=int(config('conn_max_age', default=0))
-    )
-}
-
-
 # DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config('dbname'),
-#         "USER": config('user'),
-#         "PASSWORD": config('password'),
-#         "HOST": config('host'),
-#         "PORT": config('port'),
-#     }
+#     'default': dj_database_url.config(
+#         default=config('default'),
+#         conn_max_age=int(config('conn_max_age', default=0))
+#     )
 # }
 
 
-# Configuration for Cloudinary   
-# cloudinary.config( 
-#     cloud_name = config('cloud_name'), 
-#     api_key = config('api_key') , 
-#     api_secret = config('api_secret'),
-#     secure=True
-# )
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config('dbname'),
+        "USER": config('user'),
+        "PASSWORD": config('password'),
+        "HOST": config('host'),
+        "PORT": config('port'),
+    }
+}
 
-# CLOUDINARY_URL = config('CLOUDINARY_URL')
+
+# Configuration for Cloudinary   
+cloudinary.config( 
+    cloud_name = config('cloud_name'), 
+    api_key = config('api_key') , 
+    api_secret = config('api_secret'),
+    secure=True
+)
+
+CLOUDINARY_URL = config('CLOUDINARY_URL')
 
 # Media storage using Cloudinary
-# DEFAULT_FILE_STORAGE = config('DEFAULT_FILE_STORAGE')
+DEFAULT_FILE_STORAGE = config('DEFAULT_FILE_STORAGE')
 
 
 # Password validation
