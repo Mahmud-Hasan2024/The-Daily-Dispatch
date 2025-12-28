@@ -15,13 +15,13 @@ Built with a focus on editorial workflows — Admins, Editors, Reporters, Modera
 
 ## 👤 Demo Accounts (use on the deployed site)
 
-| Role       | Username       | Password   |
-| ---------- | -------------- | ---------- |
-| Admin      | `djones`       | `kgb12345` |
-| Editor     | `donnaknight`  | `kgb12345` |
-| Reporter   | `amandagreene` | `kgb12345` |
-| Moderator  | `cmcpherson`   | `kgb12345` |
-| Subscriber | `mercerangela` | `kgb12345` |
+| Role       | Username | Password   |
+| ---------- | -------- | ---------- |
+| Admin      | `Daisy`  | `kgb12345` |
+| Editor     | `Smith`  | `kgb12345` |
+| Reporter   | `Asim`   | `kgb12345` |
+| Moderator  | `Shakib` | `kgb12345` |
+| Subscriber | `Ziyad`  | `kgb12345` |
 
 ---
 
