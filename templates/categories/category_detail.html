@@ -19,8 +19,12 @@
     </div>
 
     <div class="mt-6 flex gap-4">
-        <a href="{% url 'news:update_category' category.pk %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'news:delete_category' category.pk %}" class="btn btn-error">Delete</a>
+        {% if request.user.is_authenticated %}
+            {% if "Admin" in request.user.groups.all.values_list|stringformat:"s" or "Editor" in request.user.groups.all.values_list|stringformat:"s" %}
+                <a href="{% url 'news:update_category' category.pk %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'news:delete_category' category.pk %}" class="btn btn-error">Delete</a>
+            {% endif %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
